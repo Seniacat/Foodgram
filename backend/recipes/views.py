@@ -1,3 +1,13 @@
-from django.shortcuts import render
+from rest_framework import mixins, viewsets
 
-# Create your views here.
+from .models import Ingredient
+from .serializers import IngredientSerializer
+
+
+class IngredientViewSet(
+    mixins.RetrieveModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet
+):
+    queryset = Ingredient.objects.all()
+    serializer_class = IngredientSerializer
