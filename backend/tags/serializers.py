@@ -8,5 +8,11 @@ class TagSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tag
-        fields = ('name', 'slug', 'color')
+        fields = ('__all__')
 
+
+class TagField(serializers.SlugRelatedField):
+
+    def to_representation(self, value):
+        serializer = TagSerializer(value)
+        return serializer.data

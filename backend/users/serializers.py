@@ -5,7 +5,7 @@ from rest_framework import serializers
 from .models import Subscription, User
 
 
-class CustomUserSerializer(UserSerializer):
+class CurrentUserSerializer(UserSerializer):
     is_subscribed = serializers.SerializerMethodField(method_name='check_following')
 
     class Meta:
@@ -26,5 +26,5 @@ class CustomUserSerializer(UserSerializer):
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):
+    # author = 
     pass
-    
