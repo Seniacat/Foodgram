@@ -10,4 +10,5 @@ class SubscriptionsListView(generics.ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        return user.following.all()
+        return user.follower.all()
+    

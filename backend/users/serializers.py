@@ -1,3 +1,4 @@
+from dataclasses import fields
 from pyexpat import model
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
@@ -26,5 +27,15 @@ class CurrentUserSerializer(UserSerializer):
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):
-    # author = 
-    pass
+    author = CurrentUserSerializer(read_only=True)
+
+    def validate(self, data):
+        return data
+
+    class Meta:
+        model = Subscription
+        fields = ('author',)
+
+
+
+    

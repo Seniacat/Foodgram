@@ -16,10 +16,22 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
-    
+    id = serializers.PrimaryKeyRelatedField(source='ingredient', read_only=True)
+    name = serializers.SlugRelatedField(
+                                        source='ingredient',
+                                        slug_field='name',
+                                        read_only=True
+    )
+    measurement_unit = serializers.SlugRelatedField(
+                                                    source='ingredient',
+                                                    slug_field='measurement_unit',
+                                                    read_only=True
+    )
+
+
     class Meta:
         model = IngredientsInRecipe
-        fields = ('id', 'name', 'measurement_unit', 'amount')
+        fields = ('id', 'name', 'measurement_unit')
 
     def __str__(self):
         return f'{self.ingredient} in {self.recipe}'
@@ -29,6 +41,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     tags = TagField(
         slug_field='id', queryset=Tag.objects.all(), many=True
     )
+    ingredients = IngredientInRecipeSerializer(many=True)
     
     class Meta:
         model = Recipe
@@ -36,6 +49,7 @@ class RecipeSerializer(serializers.ModelSerializer):
                 'tags',
                 'name',
                 'author',
+                'ingredients',
                 'text',
                 'cooking_time'
             )
