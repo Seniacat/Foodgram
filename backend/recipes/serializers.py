@@ -1,5 +1,5 @@
 from dataclasses import fields
-from rest_framework import serializers
+from rest_framework import serializers, validators
 
 from recipes.models import (Favorite, Ingredient,
                             IngredientsInRecipe, Recipe)
@@ -54,3 +54,13 @@ class RecipeSerializer(serializers.ModelSerializer):
                 'text',
                 'cooking_time'
             )
+
+
+class ShortRecipeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Recipe
+        fields = ('id', 'name', 'cooking_time')
+
+
+

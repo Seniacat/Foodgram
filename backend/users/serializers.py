@@ -31,16 +31,8 @@ class CurrentUserSerializer(UserSerializer):
 class SubscriptionSerializer(serializers.ModelSerializer):
     author = CurrentUserSerializer(read_only=True)
 
-    def validate(self, data):
-        return data
-
     class Meta:
         model = Subscription
         fields = ('author',)
 
-
-    """def get_serializer_context(self):
-        context = super(SubscriptionSerializer, self).get_serializer_context()
-        context.update({"request": self.request})
-        return context"""
     
