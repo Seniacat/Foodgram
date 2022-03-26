@@ -1,5 +1,6 @@
 from dataclasses import fields
 from pyexpat import model
+from urllib import request
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
 
@@ -20,10 +21,11 @@ class CurrentUserSerializer(UserSerializer):
         )
 
     def check_following(self, obj):
-        user = self.context.get('request').user
-        if len(Subscription.objects.filter(user=user, author=obj)) == 0:
+        request = self.context.get('request')
+        if request is None:
             return False
-        return True
+        return Subscription.objects.filter(user=request.user, author=obj).exists()
+    
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):
