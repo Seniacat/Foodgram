@@ -22,7 +22,7 @@ class CurrentUserSerializer(UserSerializer):
 
     def check_following(self, obj):
         request = self.context.get('request')
-        if request is None:
+        if request is None or request.user.is_anonymous:
             return False
         return Subscription.objects.filter(user=request.user, author=obj).exists()
     
@@ -39,5 +39,8 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         fields = ('author',)
 
 
-
+    """def get_serializer_context(self):
+        context = super(SubscriptionSerializer, self).get_serializer_context()
+        context.update({"request": self.request})
+        return context"""
     

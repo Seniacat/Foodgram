@@ -1,7 +1,8 @@
 from dataclasses import fields
 from rest_framework import serializers
 
-from recipes.models import Ingredient, IngredientsInRecipe, Recipe
+from recipes.models import (Favorite, Ingredient,
+                            IngredientsInRecipe, Recipe)
 from users.serializers import CurrentUserSerializer
 from tags.models import Tag
 from tags.serializers import TagField
