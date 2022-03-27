@@ -43,6 +43,7 @@ class RecipeSerializer(serializers.ModelSerializer):
         slug_field='id', queryset=Tag.objects.all(), many=True
     )
     ingredients = IngredientInRecipeSerializer(many=True)
+    is_favorited = serializers.SerializerMethodField()
     
     class Meta:
         model = Recipe
@@ -52,8 +53,15 @@ class RecipeSerializer(serializers.ModelSerializer):
                 'author',
                 'ingredients',
                 'text',
-                'cooking_time'
+                'cooking_time',
+                'is_favorited'
             )
+
+    def get_is_favorited(self, obj):
+        request = self.context.get('request')
+        if request is None or request.user.is_anonymous:
+            return False
+        return Favorite.objects.filter(user=request.user, recipe=obj).exists()
 
 
 class ShortRecipeSerializer(serializers.ModelSerializer):

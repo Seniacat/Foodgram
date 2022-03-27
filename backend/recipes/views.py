@@ -35,9 +35,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
         if Favorite.objects.filter(recipe=recipe, user=user).exists():
             raise ValidationError('Рецепт уже добавлен в избранное')
         Favorite.objects.create(recipe=recipe, user=user)
-        print(recipe)
         serializer = ShortRecipeSerializer(recipe)
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 
+    @favorite.mapping.delete
+    def del_favorite(self, request, pk):
+        recipe = get_object_or_404(Recipe, pk=pk)
+        user = self.request.user
+        favorite = get_object_or_404(Favorite, recipe=recipe, user=user)
+        favorite.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
         
 

@@ -35,4 +35,3 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         model = Subscription
         fields = ('author',)
 
-    
