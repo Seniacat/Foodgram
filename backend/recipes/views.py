@@ -8,8 +8,8 @@ from rest_framework.validators import ValidationError
 from users.models import User
 
 from .models import Favorite, Ingredient, Recipe
-from .serializers import (IngredientSerializer, RecipeSerializer,
-                        ShortRecipeSerializer)
+from .serializers import (IngredientSerializer, AddRecipeSerializer,
+                        RecipeSerializer, ShortRecipeSerializer)
 
 
 class IngredientViewSet(
@@ -23,11 +23,13 @@ class IngredientViewSet(
 
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
-    serializer_class = RecipeSerializer
 
-    def perform_create(self, serializer):
-        author = self.request.user
-        serializer.save(author=author)
+    def get_serializer_class(self):
+        if (self.action == 'list'
+        or self.action == 'retrieve'):
+            return RecipeSerializer
+        else:
+            return AddRecipeSerializer
 
     @action(detail=True, methods=['post'])
     def favorite(self, request, pk):

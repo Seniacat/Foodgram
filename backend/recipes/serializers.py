@@ -1,6 +1,3 @@
-from asyncore import read
-from tkinter.tix import Tree
-from urllib import request
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers, validators
@@ -23,17 +20,8 @@ class IngredientSerializer(serializers.ModelSerializer):
 
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField(source='ingredient.id')
-    name = serializers.SlugRelatedField(
-                                        source='ingredient',
-                                        slug_field='name',
-                                        read_only=True
-    )
-    measurement_unit = serializers.SlugRelatedField(
-                                                    source='ingredient',
-                                                    slug_field='measurement_unit',
-                                                    read_only=True
-    )
-
+    name = serializers.ReadOnlyField(source='ingredient.name')
+    measurement_unit = serializers.ReadOnlyField(source='ingredient.measurement_unit')
 
     class Meta:
         model = IngredientsInRecipe
@@ -43,8 +31,16 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
         return f'{self.ingredient} in {self.recipe}'
 
 
+class AddIngredientSerializer(serializers.ModelSerializer):
+    id = serializers.PrimaryKeyRelatedField(queryset=Ingredient.objects.all())
+    amount = serializers.IntegerField()
+
+    class Meta:
+        model = IngredientsInRecipe
+        fields = ('id', 'amount')
+
+
 class RecipeSerializer(serializers.ModelSerializer):
-    author = CurrentUserSerializer(read_only=True)
     tags = TagField(
         slug_field='id', queryset=Tag.objects.all(), many=True
     )
@@ -65,33 +61,43 @@ class RecipeSerializer(serializers.ModelSerializer):
                 'is_favorited'
             )
 
-    # def get_ingredients(self, obj):
-        
-
-
-    """def create(self, validated_data):
-        request = self.context.get('request')
-        print(validated_data)
-        print(request)
-        ingredients = validated_data.pop('ingredient_in_recipe')
-        tags = validated_data.pop('tags')
-        print(ingredients)
-        for ing in ingredients:
-            print(ing)
-            ingredient_id = ing['id']
-            amount = ing['amount']
-            ingredient = get_object_or_404(Ingredient, id=ingredient_id)
-            IngredientsInRecipe.objects.create(
-                                                recipe=recipe,
-                                                ingredient=ingredient,
-                                                amount=amount)
-        return recipe"""
-
     def get_is_favorited(self, obj):
         request = self.context.get('request')
         if request is None or request.user.is_anonymous:
             return False
         return Favorite.objects.filter(user=request.user, recipe=obj).exists()
+
+
+class AddRecipeSerializer(serializers.ModelSerializer):
+    tags = serializers.PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True)
+    ingredients = AddIngredientSerializer(many=True)
+    image = Base64ImageField()
+
+    class Meta:
+        model = Recipe
+        fields = (
+                'tags',
+                'name',
+                'ingredients',
+                'image',
+                'text',
+                'cooking_time'
+            )
+
+    def to_representation(self, instance):
+        serializer = RecipeSerializer(instance)
+        return serializer.data
+
+    def create(self, validated_data):
+        request = self.context.get('request')
+        ingredients = validated_data.pop('ingredients')
+        tags = validated_data.pop('tags')
+        recipe = Recipe.objects.create(**validated_data, author=request.user)
+        for tag in tags:
+            recipe.tags.add(tag)
+            recipe.save()
+        return recipe
+
 
 
 class ShortRecipeSerializer(serializers.ModelSerializer):
