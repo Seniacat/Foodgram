@@ -31,6 +31,10 @@ class FavoriteAdmin(admin.ModelAdmin):
         'recipe'
     )
 
+    """readonly_fields = ('is_favorited',)
+    
+    def is_favorited(self, instance):
+        return instance.favorite_recipes.count()"""
 
 admin.site.register(Ingredient)
 admin.site.register(IngredientsInRecipe)

@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.shortcuts import get_object_or_404
 from rest_framework import mixins, status, serializers, viewsets
 from rest_framework.decorators import action
@@ -34,8 +35,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         user = self.request.user
         if Favorite.objects.filter(recipe=recipe, user=user).exists():
             raise ValidationError('Рецепт уже добавлен в избранное')
-        Favorite.objects.create(recipe=recipe, user=user)
-        serializer = ShortRecipeSerializer(recipe)
+        with transaction.atomic:
+            Favorite.objects.create(recipe=recipe, user=user)
+            serializer = ShortRecipeSerializer(recipe)
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 
     @favorite.mapping.delete
