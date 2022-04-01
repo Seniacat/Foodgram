@@ -88,6 +88,7 @@ class AddRecipeSerializer(serializers.ModelSerializer):
         serializer = RecipeSerializer(instance)
         return serializer.data
 
+    @transaction.atomic
     def create(self, validated_data):
         request = self.context.get('request')
         ingredients = validated_data.pop('ingredients')
@@ -96,9 +97,28 @@ class AddRecipeSerializer(serializers.ModelSerializer):
         for tag in tags:
             recipe.tags.add(tag)
             recipe.save()
+        for ingredient in ingredients:
+            amount =ingredient['amount']
+            ingredient = ingredient['id']
+            IngredientsInRecipe.objects.create(recipe=recipe, ingredient=ingredient, amount=amount)
         return recipe
-
-
+ 
+    def update(self, instance, validated_data):
+        ingredients = validated_data.pop('ingredients')
+        tags = validated_data.pop('tags')
+        IngredientsInRecipe.objects.filter(recipe=instance).delete()
+        instance.name = validated_data.get('name', instance.name)
+        instance.text = validated_data.get('text', instance.text)
+        instance.image = validated_data.get('image', instance.image)
+        instance.cooking_time = validated_data.get(
+                                                'cooking_time',
+                                                instance.cooking_time)
+        for ingredient in ingredients:
+            amount =ingredient['amount']
+            ingredient = ingredient['id']
+            IngredientsInRecipe.objects.create(recipe=instance, ingredient=ingredient, amount=amount)
+        return self.instance
+        
 
 class ShortRecipeSerializer(serializers.ModelSerializer):
 
