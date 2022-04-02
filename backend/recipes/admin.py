@@ -1,8 +1,7 @@
 from django.contrib import admin
-from django.contrib.admin import site, register
 
 from .models import (Favorite, Ingredient, Recipe,
-                    IngredientsInRecipe)
+                    IngredientsInRecipe, ShoppingCart)
 
 
 class IngredientsInRecipeInline(admin.TabularInline):
@@ -36,7 +35,18 @@ class FavoriteAdmin(admin.ModelAdmin):
     def is_favorited(self, instance):
         return instance.favorite_recipes.count()"""
 
+
+class ShoppingCartAdmin(admin.ModelAdmin):
+    list_display = (
+        'pk',
+        'user',
+        'recipe'
+    )
+
+
+
 admin.site.register(Ingredient)
 admin.site.register(IngredientsInRecipe)
 admin.site.register(Recipe, RecipeAdmin)
 admin.site.register(Favorite, FavoriteAdmin)
+admin.site.register(ShoppingCart, ShoppingCartAdmin)
