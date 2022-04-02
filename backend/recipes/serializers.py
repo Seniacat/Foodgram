@@ -123,10 +123,11 @@ class AddRecipeSerializer(serializers.ModelSerializer):
         
 
 class ShortRecipeSerializer(serializers.ModelSerializer):
+    image = Base64ImageField()
 
     class Meta:
         model = Recipe
-        fields = ('id', 'name', 'cooking_time')
+        fields = ('id', 'name', 'image', 'cooking_time')
 
 
 

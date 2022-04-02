@@ -110,3 +110,25 @@ class Favorite(models.Model):
 
     def __str__(self):
         return f'{self.user} added {self.recipe} to favorite' 
+
+
+class ShoppingCart(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='in_shopping_cart',
+        verbose_name='Список покупок'
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='users_shopping_cart',
+        verbose_name='Всписке у пользователей'
+    )
+
+    class Meta:
+        verbose_name = 'Список покупок'
+        verbose_name_plural = 'Списки покупок'
+
+    def __str__(self):
+        return f'{self.user} added {self.recipe} in shopping cart'  
