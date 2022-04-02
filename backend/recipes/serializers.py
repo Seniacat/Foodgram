@@ -94,15 +94,15 @@ class AddRecipeSerializer(serializers.ModelSerializer):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
         recipe = Recipe.objects.create(**validated_data, author=request.user)
-        for tag in tags:
-            recipe.tags.add(tag)
-            recipe.save()
+        recipe.tags.set(tags)
+        recipe.save()
         for ingredient in ingredients:
             amount =ingredient['amount']
             ingredient = ingredient['id']
             IngredientsInRecipe.objects.create(recipe=recipe, ingredient=ingredient, amount=amount)
         return recipe
- 
+    
+    @transaction.atomic
     def update(self, instance, validated_data):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
@@ -117,6 +117,8 @@ class AddRecipeSerializer(serializers.ModelSerializer):
             amount =ingredient['amount']
             ingredient = ingredient['id']
             IngredientsInRecipe.objects.create(recipe=instance, ingredient=ingredient, amount=amount)
+        instance.tags.clear()
+        instance.tags.set(tags)  
         return self.instance
         
 
