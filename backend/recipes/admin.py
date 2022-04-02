@@ -44,7 +44,6 @@ class ShoppingCartAdmin(admin.ModelAdmin):
     )
 
 
-
 admin.site.register(Ingredient)
 admin.site.register(IngredientsInRecipe)
 admin.site.register(Recipe, RecipeAdmin)

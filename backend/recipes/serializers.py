@@ -4,7 +4,7 @@ from rest_framework import serializers, validators
 from drf_extra_fields.fields import Base64ImageField
 
 from recipes.models import (Favorite, Ingredient,
-                            IngredientsInRecipe, Recipe)
+                            IngredientsInRecipe, Recipe, ShoppingCart)
 from users.serializers import CurrentUserSerializer
 from tags.models import Tag
 from tags.serializers import TagField
@@ -47,6 +47,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     ingredients = IngredientInRecipeSerializer(source='ingredient_in_recipe', read_only=True, many=True)
     image = Base64ImageField()
     is_favorited = serializers.SerializerMethodField()
+    is_in_shopping_cart = serializers.SerializerMethodField()
     
     class Meta:
         model = Recipe
@@ -58,14 +59,21 @@ class RecipeSerializer(serializers.ModelSerializer):
                 'image',
                 'text',
                 'cooking_time',
-                'is_favorited'
+                'is_favorited',
+                'is_in_shopping_cart'
             )
 
-    def get_is_favorited(self, obj):
+    def in_list(self, obj, model):
         request = self.context.get('request')
         if request is None or request.user.is_anonymous:
             return False
-        return Favorite.objects.filter(user=request.user, recipe=obj).exists()
+        return model.objects.filter(user=request.user, recipe=obj).exists()
+
+    def get_is_favorited(self, obj):
+        return self.in_list(obj, Favorite)
+
+    def get_is_in_shopping_cart(self, obj):
+        return self.in_list(obj, ShoppingCart)
 
 
 class AddRecipeSerializer(serializers.ModelSerializer):
@@ -128,8 +136,6 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
-
-
 
 
 
