@@ -19,17 +19,16 @@ class CurrentUserViewSet(UserViewSet):
         serializer = SubscriptionSerializer(following, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=['post']) #слить в один метод
     def subscribe(self, request, id):
         author =get_object_or_404(User, id=id)
         user = self.request.user
         if user == author:
             raise serializers.ValidationError('Нельзя подписаться на самого себя!')
-        with transaction.atomic:
-            Subscription.objects.create(
-                                        user=self.request.user,
-                                        author=author)
-            serializer = CurrentUserSerializer(author, context={'request': request})
+        subscription = Subscription.objects.create(
+                                    user=self.request.user,
+                                    author=author)
+        serializer = SubscriptionSerializer(subscription, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
 
     @subscribe.mapping.delete

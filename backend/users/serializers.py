@@ -1,14 +1,14 @@
-from dataclasses import fields
-from pyexpat import model
+import email
 from urllib import request
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
 
 from .models import Subscription, User
+from recipes.serializers import ShortRecipeSerializer
 
 
 class CurrentUserSerializer(UserSerializer):
-    is_subscribed = serializers.SerializerMethodField(method_name='check_following')
+    is_subscribed = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -20,7 +20,7 @@ class CurrentUserSerializer(UserSerializer):
                 'is_subscribed'
         )
 
-    def check_following(self, obj):
+    def get_is_subscribed(self, obj):
         request = self.context.get('request')
         if request is None or request.user.is_anonymous:
             return False
@@ -29,9 +29,29 @@ class CurrentUserSerializer(UserSerializer):
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):
-    author = CurrentUserSerializer(read_only=True)
+    email = serializers.ReadOnlyField(source='author.email')
+    id = serializers.ReadOnlyField(source='author.id')
+    username = serializers.ReadOnlyField(source='author.username')
+    first_name = serializers.ReadOnlyField(source='author.first_name')
+    last_name = serializers.ReadOnlyField(source='author.last_name')
+    is_subscribed = serializers.SerializerMethodField()
+    recipes = ShortRecipeSerializer(source='author.recipes', read_only=True, many=True)
+    recipes_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Subscription
-        fields = ('author',)
+        fields = ('email',
+                'id',
+                'username',
+                'first_name',
+                'last_name',
+                'is_subscribed',
+                'recipes',
+                'recipes_count')
 
+    def get_is_subscribed(self, obj):
+        request = self.context.get('request')
+        return Subscription.objects.filter(author=obj.author, user=request.user).exists()
+
+    def get_recipes_count(self, obj):
+        return obj.author.recipes.count()

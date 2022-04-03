@@ -5,7 +5,6 @@ from drf_extra_fields.fields import Base64ImageField
 
 from recipes.models import (Favorite, Ingredient,
                             IngredientsInRecipe, Recipe, ShoppingCart)
-from users.serializers import CurrentUserSerializer
 from tags.models import Tag
 from tags.serializers import TagField
 from users.models import User
