@@ -7,22 +7,31 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from .models import Subscription, User
-from .serializers import CurrentUserSerializer, SubscriptionSerializer
+from .serializers import SubscriptionSerializer
+from rest_framework.permissions import IsAuthenticated
 
 
 class CurrentUserViewSet(UserViewSet):
 
-    @action(detail=False)
+    @action(detail=False, permission_classes=(IsAuthenticated,))
     def subscriptions(self, request):
         user = self.request.user
         following = user.follower.all()
         serializer = SubscriptionSerializer(following, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @action(detail=True, methods=['post']) #слить в один метод
+    @action(
+            detail=True,
+            methods=['post', 'delete'],
+            permission_classes=(IsAuthenticated,)
+    )
     def subscribe(self, request, id):
         author =get_object_or_404(User, id=id)
         user = self.request.user
+        if request.method == 'DELETE':
+            subscription = get_object_or_404(Subscription, user=user, author=author)
+            subscription.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
         if user == author:
             raise serializers.ValidationError('Нельзя подписаться на самого себя!')
         subscription = Subscription.objects.create(
@@ -30,11 +39,3 @@ class CurrentUserViewSet(UserViewSet):
                                     author=author)
         serializer = SubscriptionSerializer(subscription, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
-
-    @subscribe.mapping.delete
-    def del_subscription(self, request, id):
-        author =get_object_or_404(User, id=id)
-        user = self.request.user
-        subscription = get_object_or_404(Subscription, user=user, author=author)
-        subscription.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)

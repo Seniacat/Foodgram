@@ -21,6 +21,10 @@ class IngredientAdmin(admin.ModelAdmin):
 class RecipeAdmin(admin.ModelAdmin):
     inlines = (IngredientsInRecipeInline,)
     list_filter = ('name', 'tags', 'ingredients')
+    readonly_fields = ('is_favorited',)
+    
+    def is_favorited(self, instance):
+        return instance.favorite_recipes.count()
 
 
 class FavoriteAdmin(admin.ModelAdmin):
@@ -29,11 +33,6 @@ class FavoriteAdmin(admin.ModelAdmin):
         'user',
         'recipe'
     )
-
-    """readonly_fields = ('is_favorited',)
-    
-    def is_favorited(self, instance):
-        return instance.favorite_recipes.count()"""
 
 
 class ShoppingCartAdmin(admin.ModelAdmin):
