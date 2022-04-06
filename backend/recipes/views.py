@@ -9,6 +9,7 @@ from rest_framework.validators import ValidationError
 from users.models import User
 
 from .models import Favorite, Ingredient, IngredientsInRecipe, Recipe, ShoppingCart
+from .pagination import CustomPagination
 from .permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
 from .serializers import (IngredientSerializer, AddRecipeSerializer,
                         RecipeSerializer, ShortRecipeSerializer)
@@ -28,6 +29,7 @@ class IngredientViewSet(
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all().order_by('-pub_date')
     permission_classes = (IsOwnerOrReadOnly,)
+    pagination_class =CustomPagination
 
     def get_serializer_class(self):
         if (self.action == 'list'
@@ -35,6 +37,10 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return RecipeSerializer
         else:
             return AddRecipeSerializer
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        serializer.save(author=user)
     
     @action(
             detail=True,

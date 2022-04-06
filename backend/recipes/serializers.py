@@ -25,6 +25,13 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = IngredientsInRecipe
         fields = ('id', 'name', 'measurement_unit', 'amount')
+    
+    validators = [
+            validators.UniqueTogetherValidator(
+                queryset=IngredientsInRecipe.objects.all(),
+                fields=('ingredient', 'recipe')
+            )
+        ]
 
     def __str__(self):
         return f'{self.ingredient} in {self.recipe}'
@@ -90,17 +97,16 @@ class AddRecipeSerializer(serializers.ModelSerializer):
                 'text',
                 'cooking_time'
             )
-
+    
     def to_representation(self, instance):
         serializer = RecipeSerializer(instance)
-        return serializer.data
+        return serializer.data 
 
     @transaction.atomic
     def create(self, validated_data):
-        request = self.context.get('request')
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
-        recipe = Recipe.objects.create(**validated_data, author=request.user)
+        recipe = Recipe.objects.create(**validated_data)
         recipe.tags.set(tags)
         recipe.save()
         for ingredient in ingredients:

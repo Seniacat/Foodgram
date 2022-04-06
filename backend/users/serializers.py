@@ -4,6 +4,7 @@ from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
 
 from .models import Subscription, User
+from recipes.models import Recipe
 from recipes.serializers import ShortRecipeSerializer
 
 
@@ -24,8 +25,7 @@ class CurrentUserSerializer(UserSerializer):
         request = self.context.get('request')
         if request is None or request.user.is_anonymous:
             return False
-        return Subscription.objects.filter(user=request.user, author=obj).exists()
-    
+        return Subscription.objects.filter(user=request.user, author=obj).exists()    
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):
@@ -35,7 +35,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
     first_name = serializers.ReadOnlyField(source='author.first_name')
     last_name = serializers.ReadOnlyField(source='author.last_name')
     is_subscribed = serializers.SerializerMethodField()
-    recipes = ShortRecipeSerializer(source='author.recipes', read_only=True, many=True)
+    recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 
     class Meta:
@@ -52,6 +52,17 @@ class SubscriptionSerializer(serializers.ModelSerializer):
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
         return Subscription.objects.filter(author=obj.author, user=request.user).exists()
+
+    def get_recipes(self, obj):
+        request = self.context.get('request')
+        if request.GET.get('recipe_limit'):
+            recipe_limit = int(request.GET.get('recipe_limit'))
+            print(obj.author)
+            queryset = Recipe.objects.filter(author=obj.author).order_by('-pub_date')[:recipe_limit]
+        else:
+            queryset = Recipe.objects.filter(author=obj.author).order_by('-pub_date')
+        serializer = ShortRecipeSerializer(queryset, read_only=True, many=True)
+        return serializer.data
 
     def get_recipes_count(self, obj):
         return obj.author.recipes.count()

@@ -10,7 +10,6 @@ class TagSerializer(serializers.ModelSerializer):
         model = Tag
         fields = ('__all__')
 
-
 class TagField(serializers.SlugRelatedField):
 
     def to_representation(self, value):
