@@ -1,13 +1,13 @@
 from django.contrib import admin
 
 from .models import (Favorite, Ingredient, Recipe,
-                    IngredientsInRecipe, ShoppingCart)
+                     IngredientsInRecipe, ShoppingCart)
 
 
 class IngredientsInRecipeInline(admin.TabularInline):
     model = Recipe.ingredients.through
     extra = 1
-    
+
 
 class IngredientAdmin(admin.ModelAdmin):
     list_display = (
@@ -22,7 +22,7 @@ class RecipeAdmin(admin.ModelAdmin):
     inlines = (IngredientsInRecipeInline,)
     list_filter = ('name', 'tags', 'ingredients')
     readonly_fields = ('is_favorited',)
-    
+
     def is_favorited(self, instance):
         return instance.favorite_recipes.count()
 

@@ -75,7 +75,9 @@ WSGI_APPLICATION = 'foodgram.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': os.getenv('DB_ENGINE', default='django.db.backends.postgresql'),
+        'ENGINE': os.getenv('DB_ENGINE',
+                            default='django.db.backends.postgresql'
+        ),
         'NAME': os.getenv('DB_NAME', 'foodgram_db'),
         'USER': os.getenv('POSTGRES_USER', 'postgres'),
         'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'Ksu090787'),
@@ -144,7 +146,7 @@ REST_FRAMEWORK = {
 }
 
 DJOSER = {
-    'SERIALIZERS':{
+    'SERIALIZERS': {
         'user': 'users.serializers.CurrentUserSerializer',
         'current_user': 'users.serializers.CurrentUserSerializer',
     }

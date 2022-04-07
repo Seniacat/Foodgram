@@ -1,4 +1,3 @@
-from tabnanny import verbose
 from django.db import models
 from django.core.validators import MinValueValidator
 
@@ -33,7 +32,10 @@ class Recipe(models.Model):
         related_name='recipes',
         verbose_name='Автор рецепта',
     )
-    image = models.ImageField(upload_to='media/recipes/', verbose_name='Изображение')
+    image = models.ImageField(
+                            upload_to='media/recipes/',
+                            verbose_name='Изображение'
+    )
     text = models.TextField('Описание')
     tags = models.ManyToManyField(
         Tag,
@@ -83,6 +85,12 @@ class IngredientsInRecipe(models.Model):
     amount = models.PositiveSmallIntegerField('Количество')
 
     class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['ingredient', 'recipe'],
+                name='unique_ingredient'
+            )
+        ]
         verbose_name = 'Ингредиенты рецепта'
         verbose_name_plural = 'Ингредиенты рецептов'
 
@@ -105,11 +113,17 @@ class Favorite(models.Model):
     )
 
     class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_favorite'
+            )
+        ]
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
 
     def __str__(self):
-        return f'{self.user} added {self.recipe} to favorite' 
+        return f'{self.user} added {self.recipe} to favorite'
 
 
 class ShoppingCart(models.Model):
@@ -127,8 +141,14 @@ class ShoppingCart(models.Model):
     )
 
     class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_recipe'
+            )
+        ]
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Списки покупок'
 
     def __str__(self):
-        return f'{self.user} added {self.recipe} in shopping cart'  
+        return f'{self.user} added {self.recipe} in shopping cart'

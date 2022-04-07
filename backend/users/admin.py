@@ -22,8 +22,7 @@ class SubscriptionAdmin(admin.ModelAdmin):
         'author'
     )
     list_filter = ('user', 'author')
-    
+
 
 admin.site.register(User, UserAdmin)
 admin.site.register(Subscription, SubscriptionAdmin)
-

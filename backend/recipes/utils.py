@@ -5,7 +5,7 @@ def convert_txt(shop_list):
     file_name = 'shopping_list.txt'
     lines = []
     for ing in shop_list:
-        lines.append('{0} ({1}) - {2}'.format(ing[0], ing[1],shop_list[ing]))
+        lines.append('{0} ({1}) - {2}'.format(ing[0], ing[1], shop_list[ing]))
     lines.append('\nFoodGram Service')
     lines.append('   (＠＾◡＾)')
     content = '\n'.join(lines)

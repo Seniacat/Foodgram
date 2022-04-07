@@ -1,4 +1,3 @@
-from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, status, viewsets
@@ -8,11 +7,16 @@ from rest_framework.response import Response
 from rest_framework.validators import ValidationError
 
 from .filters import TagFilter
-from .models import Favorite, Ingredient, IngredientsInRecipe, Recipe, ShoppingCart
+from .models import (
+                    Favorite, Ingredient, IngredientsInRecipe,
+                    Recipe, ShoppingCart
+)
 from .pagination import CustomPagination
 from .permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
-from .serializers import (IngredientSerializer, AddRecipeSerializer,
-                        RecipeSerializer, ShortRecipeSerializer)
+from .serializers import (
+                        IngredientSerializer, AddRecipeSerializer,
+                        RecipeSerializer, ShortRecipeSerializer
+)
 from .utils import convert_txt
 
 
@@ -29,13 +33,15 @@ class IngredientViewSet(
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all().order_by('-pub_date')
     permission_classes = (IsOwnerOrReadOnly,)
-    pagination_class =CustomPagination
+    pagination_class = CustomPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TagFilter
 
     def get_serializer_class(self):
-        if (self.action == 'list'
-        or self.action == 'retrieve'):
+        if (
+            self.action == 'list'
+            or self.action == 'retrieve'
+        ):
             return RecipeSerializer
         else:
             return AddRecipeSerializer
@@ -43,7 +49,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         user = self.request.user
         serializer.save(author=user)
-    
+
     @action(
             detail=True,
             methods=['post', 'delete'],
@@ -61,12 +67,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def download_shopping_cart(self, request):
         CART = {}
-        user = request.user       
-        cart = IngredientsInRecipe.objects.filter(recipe__shopping_cart__user=user)
+        user = request.user
+        cart = IngredientsInRecipe.objects.filter(
+                                recipe__shopping_cart__user=user
+        )
         for ingredient in cart:
             name = ingredient.ingredient.name
             amount = ingredient.amount
-            measurement_unit = ingredient.ingredient.measurement_unit      
+            measurement_unit = ingredient.ingredient.measurement_unit
             if (name, measurement_unit) not in CART:
                 CART[(name, measurement_unit)] = amount
             else:
@@ -98,4 +106,4 @@ class RecipeViewSet(viewsets.ModelViewSet):
         user = self.request.user
         obj = get_object_or_404(model, recipe=recipe, user=user)
         obj.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT) 
+        return Response(status=status.HTTP_204_NO_CONTENT)

@@ -27,7 +27,9 @@ class Command(BaseCommand):
             ) as csv_file:
                 fieldnames = ['name', 'measurement_unit']
                 reader = csv.DictReader(csv_file, fieldnames=fieldnames)
-                Ingredient.objects.bulk_create(Ingredient(**data) for data in reader)
+                Ingredient.objects.bulk_create(
+                                Ingredient(**data) for data in reader
+                )
         except Exception as error:
             CommandError(error)
         logging.info('Successfully loaded all data into database')

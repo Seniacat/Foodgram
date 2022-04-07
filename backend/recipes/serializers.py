@@ -1,5 +1,5 @@
+from collections import Counter
 from django.db import transaction
-from django.shortcuts import get_object_or_404
 from rest_framework import serializers, validators
 from drf_extra_fields.fields import Base64ImageField
 
@@ -7,7 +7,6 @@ from recipes.models import (Favorite, Ingredient,
                             IngredientsInRecipe, Recipe, ShoppingCart)
 from tags.models import Tag
 from tags.serializers import TagField
-from users.models import User
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -20,12 +19,14 @@ class IngredientSerializer(serializers.ModelSerializer):
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField(source='ingredient.id')
     name = serializers.ReadOnlyField(source='ingredient.name')
-    measurement_unit = serializers.ReadOnlyField(source='ingredient.measurement_unit')
+    measurement_unit = serializers.ReadOnlyField(
+                            source='ingredient.measurement_unit'
+    )
 
     class Meta:
         model = IngredientsInRecipe
         fields = ('id', 'name', 'measurement_unit', 'amount')
-    
+
     validators = [
             validators.UniqueTogetherValidator(
                 queryset=IngredientsInRecipe.objects.all(),
@@ -50,14 +51,18 @@ class RecipeSerializer(serializers.ModelSerializer):
     tags = TagField(
         slug_field='id', queryset=Tag.objects.all(), many=True
     )
-    ingredients = IngredientInRecipeSerializer(source='ingredient_in_recipe', read_only=True, many=True)
+    ingredients = IngredientInRecipeSerializer(
+                                            source='ingredient_in_recipe',
+                                            read_only=True, many=True
+    )
     image = Base64ImageField()
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
-    
+
     class Meta:
         model = Recipe
-        fields = ('id',
+        fields = (
+                'id',
                 'tags',
                 'name',
                 'author',
@@ -67,7 +72,7 @@ class RecipeSerializer(serializers.ModelSerializer):
                 'cooking_time',
                 'is_favorited',
                 'is_in_shopping_cart'
-            )
+        )
 
     def in_list(self, obj, model):
         request = self.context.get('request')
@@ -83,7 +88,10 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 
 class AddRecipeSerializer(serializers.ModelSerializer):
-    tags = serializers.PrimaryKeyRelatedField(queryset=Tag.objects.all(), many=True)
+    tags = serializers.PrimaryKeyRelatedField(
+                                    queryset=Tag.objects.all(),
+                                    many=True
+    )
     ingredients = AddIngredientSerializer(many=True)
     image = Base64ImageField()
 
@@ -96,11 +104,11 @@ class AddRecipeSerializer(serializers.ModelSerializer):
                 'image',
                 'text',
                 'cooking_time'
-            )
-    
+        )
+
     def to_representation(self, instance):
         serializer = RecipeSerializer(instance)
-        return serializer.data 
+        return serializer.data
 
     @transaction.atomic
     def create(self, validated_data):
@@ -110,11 +118,15 @@ class AddRecipeSerializer(serializers.ModelSerializer):
         recipe.tags.set(tags)
         recipe.save()
         for ingredient in ingredients:
-            amount =ingredient['amount']
+            amount = ingredient['amount']
             ingredient = ingredient['id']
-            IngredientsInRecipe.objects.create(recipe=recipe, ingredient=ingredient, amount=amount)
+            IngredientsInRecipe.objects.create(
+                                            recipe=recipe,
+                                            ingredient=ingredient,
+                                            amount=amount
+            )
         return recipe
-    
+
     @transaction.atomic
     def update(self, instance, validated_data):
         ingredients = validated_data.pop('ingredients')
@@ -127,20 +139,33 @@ class AddRecipeSerializer(serializers.ModelSerializer):
                                                 'cooking_time',
                                                 instance.cooking_time)
         for ingredient in ingredients:
-            amount =ingredient['amount']
+            amount = ingredient['amount']
             ingredient = ingredient['id']
-            IngredientsInRecipe.objects.create(recipe=instance, ingredient=ingredient, amount=amount)
+            IngredientsInRecipe.objects.create(
+                                            recipe=instance,
+                                            ingredient=ingredient,
+                                            amount=amount
+            )
         instance.tags.clear()
-        instance.tags.set(tags)  
+        instance.tags.set(tags)
         return self.instance
 
     def validate_ingredients(self, data):
         if not data:
-            raise serializers.ValidationError('Поле с ингредиентами не может быть пустым')
+            raise serializers.ValidationError(
+                            'Поле с ингредиентами не может быть пустым'
+            )
+        cnt_ings = Counter([ing['id'] for ing in data])
+        if any(x > 1 for x in cnt_ings.values()):
+            raise serializers.ValidationError(
+                            'В рецепте не может быть повторяющихся ингедиентов'
+            )
         for ingredient in data:
             if ingredient['amount'] == 0:
                 name = ingredient['id']
-                raise serializers.ValidationError(f'Введите количество для {name}')
+                raise serializers.ValidationError(
+                                f'Введите количество для {name}'
+                )
         return data
 
     def validate_cooking_time(self, data):
@@ -150,12 +175,14 @@ class AddRecipeSerializer(serializers.ModelSerializer):
             )
         return data
 
+
 class ShortRecipeSerializer(serializers.ModelSerializer):
     image = Base64ImageField()
 
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
+
 
 
 
