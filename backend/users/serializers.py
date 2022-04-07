@@ -1,7 +1,7 @@
 import email
 from urllib import request
 from djoser.serializers import UserCreateSerializer, UserSerializer
-from rest_framework import serializers
+from rest_framework import serializers, validators
 
 from .models import Subscription, User
 from recipes.models import Recipe
@@ -25,7 +25,30 @@ class CurrentUserSerializer(UserSerializer):
         request = self.context.get('request')
         if request is None or request.user.is_anonymous:
             return False
-        return Subscription.objects.filter(user=request.user, author=obj).exists()    
+        return Subscription.objects.filter(user=request.user, author=obj).exists()
+
+
+class SubscribeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Subscription
+        fields = ('user', 'author')
+
+    def to_representation(self, instance):
+        serializer = SubscriptionSerializer(instance,
+                                            context={
+                'request': self.context.get('request')
+            })
+        return serializer.data
+
+    def validate(self, data):
+        user = data.get('user')
+        author = data.get('author')
+        if user == author:
+            raise serializers.ValidationError('Нельзя подписаться на самого себя!')
+        if Subscription.objects.filter(user=user, author=author).exists():
+            raise serializers.ValidationError('Вы уже подписаны на этого пользователя!')
+        return data
 
 
 class SubscriptionSerializer(serializers.ModelSerializer):

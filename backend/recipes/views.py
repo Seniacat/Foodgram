@@ -1,13 +1,13 @@
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.validators import ValidationError
 
-from users.models import User
-
+from .filters import TagFilter
 from .models import Favorite, Ingredient, IngredientsInRecipe, Recipe, ShoppingCart
 from .pagination import CustomPagination
 from .permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
@@ -30,6 +30,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all().order_by('-pub_date')
     permission_classes = (IsOwnerOrReadOnly,)
     pagination_class =CustomPagination
+    filter_backends = (DjangoFilterBackend,)
+    filterset_class = TagFilter
 
     def get_serializer_class(self):
         if (self.action == 'list'

@@ -133,7 +133,22 @@ class AddRecipeSerializer(serializers.ModelSerializer):
         instance.tags.clear()
         instance.tags.set(tags)  
         return self.instance
-        
+
+    def validate_ingredients(self, data):
+        if not data:
+            raise serializers.ValidationError('Поле с ингредиентами не может быть пустым')
+        for ingredient in data:
+            if ingredient['amount'] == 0:
+                name = ingredient['id']
+                raise serializers.ValidationError(f'Введите количество для {name}')
+        return data
+
+    def validate_cooking_time(self, data):
+        if data <= 0:
+            raise serializers.ValidationError(
+                        'Время приготовления не может быть меньше 1 минуты'
+            )
+        return data
 
 class ShortRecipeSerializer(serializers.ModelSerializer):
     image = Base64ImageField()

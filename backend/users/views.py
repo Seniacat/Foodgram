@@ -1,4 +1,5 @@
 import re
+from tkinter.tix import Tree
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
@@ -8,7 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .models import Subscription, User
-from .serializers import SubscriptionSerializer
+from .serializers import SubscriptionSerializer, SubscribeSerializer
 from recipes.pagination import CustomPagination
 
 
@@ -34,12 +35,8 @@ class CurrentUserViewSet(UserViewSet):
             subscription = get_object_or_404(Subscription, user=user, author=author)
             subscription.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
-        if user == author:
-            raise serializers.ValidationError('Нельзя подписаться на самого себя!')
-        #elif Subscription.objects.filter(user=user, author=author).exists():
-        #    raise serializers.ValidationError('Вы уже подписаны на этого пользователя!')
-        subscription = Subscription.objects.create(
-                                    user=self.request.user,
-                                    author=author)
-        serializer = SubscriptionSerializer(subscription, context={'request': request})
+        data = {'author': author.id, 'user': user.id}
+        serializer = SubscribeSerializer(data=data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
