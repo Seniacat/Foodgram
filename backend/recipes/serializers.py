@@ -1,8 +1,9 @@
-from collections import Counter
+import sys
 from django.db import transaction
 from rest_framework import serializers, validators
 from drf_extra_fields.fields import Base64ImageField
 
+import users.serializers as users
 from recipes.models import (Favorite, Ingredient,
                             IngredientsInRecipe, Recipe, ShoppingCart)
 from tags.models import Tag
@@ -20,7 +21,7 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField(source='ingredient.id')
     name = serializers.ReadOnlyField(source='ingredient.name')
     measurement_unit = serializers.ReadOnlyField(
-                            source='ingredient.measurement_unit'
+                        source='ingredient.measurement_unit'
     )
 
     class Meta:
@@ -48,16 +49,21 @@ class AddIngredientSerializer(serializers.ModelSerializer):
 
 
 class RecipeSerializer(serializers.ModelSerializer):
+    author = users.CurrentUserSerializer()
     tags = TagField(
         slug_field='id', queryset=Tag.objects.all(), many=True
     )
     ingredients = IngredientInRecipeSerializer(
-                                            source='ingredient_in_recipe',
-                                            read_only=True, many=True
+                    source='ingredient_in_recipe',
+                    read_only=True, many=True
     )
     image = Base64ImageField()
-    is_favorited = serializers.SerializerMethodField()
-    is_in_shopping_cart = serializers.SerializerMethodField()
+    is_favorited = serializers.SerializerMethodField(
+                    method_name='get_is_favorited'
+    )
+    is_in_shopping_cart = serializers.SerializerMethodField(
+                    method_name='get_is_in_shopping_cart'
+    )
 
     class Meta:
         model = Recipe
@@ -89,8 +95,8 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 class AddRecipeSerializer(serializers.ModelSerializer):
     tags = serializers.PrimaryKeyRelatedField(
-                                    queryset=Tag.objects.all(),
-                                    many=True
+            queryset=Tag.objects.all(),
+            many=True
     )
     ingredients = AddIngredientSerializer(many=True)
     image = Base64ImageField()
@@ -121,9 +127,9 @@ class AddRecipeSerializer(serializers.ModelSerializer):
             amount = ingredient['amount']
             ingredient = ingredient['id']
             IngredientsInRecipe.objects.create(
-                                            recipe=recipe,
-                                            ingredient=ingredient,
-                                            amount=amount
+                recipe=recipe,
+                ingredient=ingredient,
+                amount=amount
             )
         return recipe
 
@@ -142,9 +148,9 @@ class AddRecipeSerializer(serializers.ModelSerializer):
             amount = ingredient['amount']
             ingredient = ingredient['id']
             IngredientsInRecipe.objects.create(
-                                            recipe=instance,
-                                            ingredient=ingredient,
-                                            amount=amount
+                recipe=instance,
+                ingredient=ingredient,
+                amount=amount
             )
         instance.tags.clear()
         instance.tags.set(tags)
@@ -155,17 +161,19 @@ class AddRecipeSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                             'Поле с ингредиентами не может быть пустым'
             )
-        cnt_ings = Counter([ing['id'] for ing in data])
-        if any(x > 1 for x in cnt_ings.values()):
-            raise serializers.ValidationError(
-                            'В рецепте не может быть повторяющихся ингедиентов'
-            )
+        unique_ings = []
         for ingredient in data:
+            name = ingredient['id']
             if ingredient['amount'] == 0:
-                name = ingredient['id']
                 raise serializers.ValidationError(
                                 f'Введите количество для {name}'
                 )
+            if name not in unique_ings:
+                unique_ings.append(name)
+            else:
+                raise serializers.ValidationError(
+                            'В рецепте не может быть повторяющихся ингедиентов'
+            )
         return data
 
     def validate_cooking_time(self, data):
@@ -182,8 +190,3 @@ class ShortRecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = ('id', 'name', 'image', 'cooking_time')
-
-
-
-
-

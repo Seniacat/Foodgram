@@ -1,13 +1,16 @@
+import sys
 from djoser.serializers import UserSerializer
 from rest_framework import serializers
 
-from .models import Subscription, User
+import recipes
+from users.models import Subscription, User
 from recipes.models import Recipe
-from recipes.serializers import ShortRecipeSerializer
 
 
 class CurrentUserSerializer(UserSerializer):
-    is_subscribed = serializers.SerializerMethodField()
+    is_subscribed = serializers.SerializerMethodField(
+                                    method_name='get_is_subscribed'
+    )
 
     class Meta:
         model = User
@@ -62,9 +65,13 @@ class SubscriptionSerializer(serializers.ModelSerializer):
     username = serializers.ReadOnlyField(source='author.username')
     first_name = serializers.ReadOnlyField(source='author.first_name')
     last_name = serializers.ReadOnlyField(source='author.last_name')
-    is_subscribed = serializers.SerializerMethodField()
-    recipes = serializers.SerializerMethodField()
-    recipes_count = serializers.SerializerMethodField()
+    is_subscribed = serializers.SerializerMethodField(
+                                        method_name='get_is_subscribed'
+    )
+    recipes = serializers.SerializerMethodField(method_name='get_recipes')
+    recipes_count = serializers.SerializerMethodField(
+                                        method_name='get_recipes_count'
+    )
 
     class Meta:
         model = Subscription
@@ -95,7 +102,7 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         else:
             queryset = Recipe.objects.filter(
                 author=obj.author).order_by('-pub_date')
-        serializer = ShortRecipeSerializer(queryset, read_only=True, many=True)
+        serializer = recipes.serializers.ShortRecipeSerializer(queryset, read_only=True, many=True)
         return serializer.data
 
     def get_recipes_count(self, obj):

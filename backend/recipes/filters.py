@@ -2,7 +2,7 @@ import django_filters
 from django_filters import filters
 
 from users.models import User
-from .models import Recipe
+from recipes.models import Recipe
 
 
 class TagFilter(django_filters.FilterSet):

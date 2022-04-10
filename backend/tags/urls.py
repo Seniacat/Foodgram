@@ -6,7 +6,7 @@ from .views import TagViewSet
 
 
 router = DefaultRouter()
-router.register('tags', TagViewSet)
+router.register('tags', TagViewSet, basename='tags')
 
 
 urlpatterns = [

@@ -1,4 +1,6 @@
 import os
+from re import M
+from this import d
 from dotenv import load_dotenv
 from pathlib import Path
 
@@ -13,10 +15,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = os.getenv('SECRET_KEY',
+    default='django-insecure-vde--4q+y4fdv!zy=_sk67-8&)pzn+7-73%5-tujr3q_dz8l%4'
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', default=True)
 
 ALLOWED_HOSTS = ['*']
 
@@ -146,8 +150,33 @@ REST_FRAMEWORK = {
 }
 
 DJOSER = {
+    "LOGIN_FIELD": 'email',
+    'USER_ID_FIELD': 'id',
+    'PASSWORD_RESET_CONFIRM_URL': 'set_password/{uid}/{token}',
+    "SEND_ACTIVATION_EMAIL": False,
+    'HIDE_USERS': False,
     'SERIALIZERS': {
+
         'user': 'users.serializers.CurrentUserSerializer',
         'current_user': 'users.serializers.CurrentUserSerializer',
+    },
+    'PERMISSIONS': {
+        'activation': ['rest_framework.permissions.AllowAny'],
+        'password_reset_confirm': ['rest_framework.permissions.AllowAny'],
+        'set_password': ['djoser.permissions.CurrentUserOrAdmin'],
+        'username_reset': ['rest_framework.permissions.AllowAny'],
+        'username_reset_confirm': ['rest_framework.permissions.AllowAny'],
+        'set_username': ['djoser.permissions.CurrentUserOrAdmin'],
+        'user_create': ['rest_framework.permissions.AllowAny'],
+        'user_delete': ['djoser.permissions.CurrentUserOrAdmin'],
+        'user': ['rest_framework.permissions.AllowAny'],
+        'user_list': ['rest_framework.permissions.AllowAny'],
+        'token_create': ['rest_framework.permissions.AllowAny'],
+        'token_destroy': ['rest_framework.permissions.IsAuthenticated'],
     }
 }
+
+# Recipe_API parameters
+MIN_COOK_TIME = 1
+SHOPPING_CART_FILE_NAME = 'shopping_list.txt'
+SHOPPING_LIST_CONTENT_TYPE = 'text/plain,charset=utf8'

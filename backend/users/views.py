@@ -1,44 +1,37 @@
+from re import A
+from django.contrib.auth.hashers import check_password
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
-from rest_framework import status
+from rest_framework import status, views
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.generics import ListAPIView
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
+from django.shortcuts import get_list_or_404
 from .models import Subscription, User
-from .serializers import SubscriptionSerializer, SubscribeSerializer
+from .serializers import CurrentUserSerializer, SubscriptionSerializer, SubscribeSerializer
 from recipes.pagination import CustomPagination
+from recipes.permissions import IsOwnerOrReadOnly
 
 
-class CurrentUserViewSet(UserViewSet):
+class SubscriptionViewSet(ListAPIView):
+    serializer_class = SubscriptionSerializer
     pagination_class = CustomPagination
+    permission_classes = (IsAuthenticated,)
 
-    @action(detail=False, permission_classes=(IsAuthenticated,))
-    def subscriptions(self, request):
+    def get_queryset(self):
         user = self.request.user
         following = user.follower.all()
-        serializer = SubscriptionSerializer(
-                                    following, many=True,
-                                    context={'request': request}
-        )
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return following
 
-    @action(
-            detail=True,
-            methods=['post', 'delete'],
-            permission_classes=(IsAuthenticated,)
-    )
-    def subscribe(self, request, id):
-        author = get_object_or_404(User, id=id)
+class SubscribeView(views.APIView):
+    pagination_class = CustomPagination
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request, pk):
+        author = get_object_or_404(User, pk=pk)
         user = self.request.user
-        if request.method == 'DELETE':
-            subscription = get_object_or_404(
-                                            Subscription,
-                                            user=user,
-                                            author=author
-            )
-            subscription.delete()
-            return Response(status=status.HTTP_204_NO_CONTENT)
         data = {'author': author.id, 'user': user.id}
         serializer = SubscribeSerializer(
                                         data=data,
@@ -47,3 +40,16 @@ class CurrentUserViewSet(UserViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+
+    def delete(self, request, pk):
+        author = get_object_or_404(User, pk=pk)
+        user = self.request.user
+        subscription = get_object_or_404(
+                                        Subscription,
+                                        user=user,
+                                        author=author
+        )
+        subscription.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+

@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.validators import ValidationError
 
@@ -12,7 +12,7 @@ from .models import (
                     Recipe, ShoppingCart
 )
 from .pagination import CustomPagination
-from .permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
+from .permissions import  IsOwnerOrReadOnly
 from .serializers import (
                         IngredientSerializer, AddRecipeSerializer,
                         RecipeSerializer, ShortRecipeSerializer
@@ -27,11 +27,11 @@ class IngredientViewSet(
 ):
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
-    permission_classes = (IsAdminOrReadOnly,)
+    permission_classes = (AllowAny,)
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
-    queryset = Recipe.objects.all().order_by('-pub_date')
+    queryset = Recipe.objects.all()
     permission_classes = (IsOwnerOrReadOnly,)
     pagination_class = CustomPagination
     filter_backends = (DjangoFilterBackend,)

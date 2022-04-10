@@ -22,6 +22,7 @@ class SubscriptionAdmin(admin.ModelAdmin):
         'author'
     )
     list_filter = ('user', 'author')
+    search_fields = ('user__username', 'user__email')
 
 
 admin.site.register(User, UserAdmin)
