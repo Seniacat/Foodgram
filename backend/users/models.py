@@ -4,9 +4,10 @@ from django.db import models
 
 class User(AbstractUser):
     email = models.EmailField(
-        'email',
         unique=True,
-        max_length=254
+        max_length=254,
+        verbose_name='email',
+        help_text='Введите адрес электронной почты'
     )
 
     USERNAME_FIELD = 'email'

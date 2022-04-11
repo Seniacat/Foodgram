@@ -27,9 +27,9 @@ class Ingredient(models.Model):
 
 class Recipe(models.Model):
     name = models.CharField(
-                            max_length=200,
-                            verbose_name='Название',
-                            help_text='Введите название рецепта'
+        max_length=200,
+        verbose_name='Название',
+        help_text='Введите название рецепта'
     )
     author = models.ForeignKey(
         User,
@@ -39,13 +39,13 @@ class Recipe(models.Model):
         help_text='Введите автора'
     )
     image = models.ImageField(
-                            upload_to='backend_media/recipes/',
-                            verbose_name='Изображение',
-                            help_text='Загрузите изображение'
+        upload_to='backend_media/recipes/',
+        verbose_name='Изображение',
+        help_text='Загрузите изображение'
     )
     text = models.TextField(
-                            verbose_name='Описание',
-                            help_text='Введите описание рецепта'
+        verbose_name='Описание',
+        help_text='Введите описание рецепта'
     )
     tags = models.ManyToManyField(
         Tag,
@@ -77,7 +77,6 @@ class Recipe(models.Model):
         db_index=True)
 
     class Meta:
-        #abstract = True
         ordering = ('-pub_date',)
         verbose_name = 'Рецепт'
         verbose_name_plural = 'Рецепты'
@@ -161,12 +160,12 @@ class ShoppingCart(models.Model):
     )
 
     class Meta:
-        constraints = [
+        constraints = (
             models.UniqueConstraint(
-                fields=['user', 'recipe'],
+                fields=('user', 'recipe'),
                 name='unique_recipe'
-            )
-        ]
+            ),
+        )
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Списки покупок'
 

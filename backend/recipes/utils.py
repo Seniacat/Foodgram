@@ -6,7 +6,10 @@ def convert_txt(shop_list):
     file_name = settings.SHOPPING_CART_FILE_NAME
     lines = []
     for ing in shop_list:
-        lines.append(f'{ing[0]} ({ing[1]}) - {shop_list[ing]}')
+        name = ing['ingredient__name']
+        measurement_unit = ing['ingredient__measurement_unit']
+        amount = ing['ingredient_total']
+        lines.append(f'{name} ({measurement_unit}) - {amount}')
     lines.append('\nFoodGram Service')
     lines.append('   (＠＾◡＾)')
     content = '\n'.join(lines)

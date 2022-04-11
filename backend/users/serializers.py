@@ -25,10 +25,10 @@ class CurrentUserSerializer(UserSerializer):
 
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
-        if request is None or request.user.is_anonymous:
+        if request.user.is_anonymous:
             return False
         return Subscription.objects.filter(
-                                        user=request.user, author=obj
+                user=request.user, author=obj
         ).exists()
 
 
@@ -96,13 +96,15 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if request.GET.get('recipe_limit'):
             recipe_limit = int(request.GET.get('recipe_limit'))
-            print(obj.author)
             queryset = Recipe.objects.filter(
-                        author=obj.author).order_by('-pub_date')[:recipe_limit]
+                    author=obj.author).order_by('-pub_date'
+                    )[:recipe_limit]
         else:
             queryset = Recipe.objects.filter(
                 author=obj.author).order_by('-pub_date')
-        serializer = recipes.serializers.ShortRecipeSerializer(queryset, read_only=True, many=True)
+        serializer = recipes.serializers.ShortRecipeSerializer(
+                    queryset, read_only=True, many=True
+        )
         return serializer.data
 
     def get_recipes_count(self, obj):

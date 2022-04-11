@@ -1,4 +1,3 @@
-import sys
 from django.db import transaction
 from rest_framework import serializers, validators
 from drf_extra_fields.fields import Base64ImageField
@@ -28,12 +27,12 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
         model = IngredientsInRecipe
         fields = ('id', 'name', 'measurement_unit', 'amount')
 
-    validators = [
+    validators = (
             validators.UniqueTogetherValidator(
                 queryset=IngredientsInRecipe.objects.all(),
                 fields=('ingredient', 'recipe')
-            )
-        ]
+            ),
+        )
 
     def __str__(self):
         return f'{self.ingredient} in {self.recipe}'
@@ -54,15 +53,15 @@ class RecipeSerializer(serializers.ModelSerializer):
         slug_field='id', queryset=Tag.objects.all(), many=True
     )
     ingredients = IngredientInRecipeSerializer(
-                    source='ingredient_in_recipe',
-                    read_only=True, many=True
+        source='ingredient_in_recipe',
+        read_only=True, many=True
     )
     image = Base64ImageField()
     is_favorited = serializers.SerializerMethodField(
-                    method_name='get_is_favorited'
+        method_name='get_is_favorited'
     )
     is_in_shopping_cart = serializers.SerializerMethodField(
-                    method_name='get_is_in_shopping_cart'
+        method_name='get_is_in_shopping_cart'
     )
 
     class Meta:
@@ -95,8 +94,8 @@ class RecipeSerializer(serializers.ModelSerializer):
 
 class AddRecipeSerializer(serializers.ModelSerializer):
     tags = serializers.PrimaryKeyRelatedField(
-            queryset=Tag.objects.all(),
-            many=True
+        queryset=Tag.objects.all(),
+        many=True
     )
     ingredients = AddIngredientSerializer(many=True)
     image = Base64ImageField()
@@ -159,27 +158,27 @@ class AddRecipeSerializer(serializers.ModelSerializer):
     def validate_ingredients(self, data):
         if not data:
             raise serializers.ValidationError(
-                            'Поле с ингредиентами не может быть пустым'
+                'Поле с ингредиентами не может быть пустым'
             )
         unique_ings = []
         for ingredient in data:
             name = ingredient['id']
             if ingredient['amount'] == 0:
                 raise serializers.ValidationError(
-                                f'Введите количество для {name}'
+                    f'Введите количество для {name}'
                 )
             if name not in unique_ings:
                 unique_ings.append(name)
             else:
                 raise serializers.ValidationError(
-                            'В рецепте не может быть повторяющихся ингедиентов'
+                    'В рецепте не может быть повторяющихся ингедиентов'
             )
         return data
 
     def validate_cooking_time(self, data):
         if data <= 0:
             raise serializers.ValidationError(
-                        'Время приготовления не может быть меньше 1 минуты'
+                'Время приготовления не может быть меньше 1 минуты'
             )
         return data
 

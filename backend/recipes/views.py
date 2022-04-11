@@ -1,3 +1,4 @@
+from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, status, viewsets
@@ -6,18 +7,18 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.validators import ValidationError
 
-from .filters import TagFilter
-from .models import (
+from recipes.filters import TagFilter
+from recipes.models import (
                     Favorite, Ingredient, IngredientsInRecipe,
                     Recipe, ShoppingCart
 )
-from .pagination import CustomPagination
-from .permissions import  IsOwnerOrReadOnly
-from .serializers import (
+from recipes.pagination import CustomPagination
+from recipes.permissions import  IsOwnerOrReadOnly
+from recipes.serializers import (
                         IngredientSerializer, AddRecipeSerializer,
                         RecipeSerializer, ShortRecipeSerializer
 )
-from .utils import convert_txt
+from recipes.utils import convert_txt
 
 
 class IngredientViewSet(
@@ -38,13 +39,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filterset_class = TagFilter
 
     def get_serializer_class(self):
-        if (
-            self.action == 'list'
-            or self.action == 'retrieve'
-        ):
+        if self.action in ('list', 'retrieve'):
             return RecipeSerializer
-        else:
-            return AddRecipeSerializer
+        return AddRecipeSerializer
 
     def perform_create(self, serializer):
         user = self.request.user
@@ -52,7 +49,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
     @action(
             detail=True,
-            methods=['post', 'delete'],
+            methods=('post', 'delete'),
             permission_classes=(IsAuthenticated,)
     )
     def favorite(self, request, pk):
@@ -66,24 +63,18 @@ class RecipeViewSet(viewsets.ModelViewSet):
             permission_classes=(IsAuthenticated,)
     )
     def download_shopping_cart(self, request):
-        CART = {}
-        user = request.user
-        cart = IngredientsInRecipe.objects.filter(
-                                recipe__shopping_cart__user=user
-        )
-        for ingredient in cart:
-            name = ingredient.ingredient.name
-            amount = ingredient.amount
-            measurement_unit = ingredient.ingredient.measurement_unit
-            if (name, measurement_unit) not in CART:
-                CART[(name, measurement_unit)] = amount
-            else:
-                CART[(name, measurement_unit)] += amount
-        return convert_txt(CART)
+        ingredients = IngredientsInRecipe.objects.filter(
+            recipe__shopping_cart__user=request.user
+        ).values(
+            'ingredient__name', 'ingredient__measurement_unit'
+        ).order_by(
+            'ingredient__name'
+        ).annotate(ingredient_total=Sum('amount'))
+        return convert_txt(ingredients)
 
     @action(
             detail=True,
-            methods=['post', 'delete'],
+            methods=('post', 'delete'),
             permission_classes=(IsAuthenticated,)
     )
     def shopping_cart(self, request, pk):

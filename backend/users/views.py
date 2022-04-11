@@ -9,8 +9,8 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 
 from django.shortcuts import get_list_or_404
-from .models import Subscription, User
-from .serializers import CurrentUserSerializer, SubscriptionSerializer, SubscribeSerializer
+from users.models import Subscription, User
+from users.serializers import SubscriptionSerializer, SubscribeSerializer
 from recipes.pagination import CustomPagination
 from recipes.permissions import IsOwnerOrReadOnly
 
