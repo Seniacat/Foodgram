@@ -1,6 +1,4 @@
 import os
-from re import M
-from this import d
 from dotenv import load_dotenv
 from pathlib import Path
 
@@ -20,7 +18,7 @@ SECRET_KEY = os.getenv('SECRET_KEY',
 )
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', default=True)
+DEBUG = bool(os.environ.get('DEBUG', default=True))
 
 ALLOWED_HOSTS = ['*']
 
@@ -113,7 +111,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru-ru'
 
 TIME_ZONE = 'UTC'
 
@@ -127,8 +125,13 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_URL = '/backend_static/'
+
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
+
+MEDIA_URL = '/backend_media/'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
@@ -179,4 +182,3 @@ DJOSER = {
 # Recipe_API parameters
 MIN_COOK_TIME = 1
 SHOPPING_CART_FILE_NAME = 'shopping_list.txt'
-SHOPPING_LIST_CONTENT_TYPE = 'text/plain,charset=utf8'

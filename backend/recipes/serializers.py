@@ -13,7 +13,7 @@ class IngredientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Ingredient
-        fields = ('__all__')
+        fields = '__all__'
 
 
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
@@ -98,7 +98,7 @@ class AddRecipeSerializer(serializers.ModelSerializer):
         many=True
     )
     ingredients = AddIngredientSerializer(many=True)
-    image = Base64ImageField()
+    image = Base64ImageField(max_length=None)
 
     class Meta:
         model = Recipe
@@ -172,7 +172,7 @@ class AddRecipeSerializer(serializers.ModelSerializer):
             else:
                 raise serializers.ValidationError(
                     'В рецепте не может быть повторяющихся ингедиентов'
-            )
+                )
         return data
 
     def validate_cooking_time(self, data):
@@ -184,7 +184,6 @@ class AddRecipeSerializer(serializers.ModelSerializer):
 
 
 class ShortRecipeSerializer(serializers.ModelSerializer):
-    image = Base64ImageField()
 
     class Meta:
         model = Recipe

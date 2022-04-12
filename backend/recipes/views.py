@@ -13,7 +13,7 @@ from recipes.models import (
                     Recipe, ShoppingCart
 )
 from recipes.pagination import CustomPagination
-from recipes.permissions import  IsOwnerOrReadOnly
+from recipes.permissions import IsOwnerOrReadOnly
 from recipes.serializers import (
                         IngredientSerializer, AddRecipeSerializer,
                         RecipeSerializer, ShortRecipeSerializer
@@ -52,7 +52,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
             methods=('post', 'delete'),
             permission_classes=(IsAuthenticated,)
     )
-    def favorite(self, request, pk):
+    def favorite(self, request, pk=None):
         if request.method == 'POST':
             return self.add_recipe(Favorite, request, pk)
         else:

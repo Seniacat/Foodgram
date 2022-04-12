@@ -1,4 +1,4 @@
-from django.conf import settings 
+from django.conf import settings
 from django.http import HttpResponse
 
 
@@ -13,7 +13,7 @@ def convert_txt(shop_list):
     lines.append('\nFoodGram Service')
     lines.append('   (＠＾◡＾)')
     content = '\n'.join(lines)
-    content_type = settings.SHOPPING_LIST_CONTENT_TYPE
+    content_type = 'text/plain,charset=utf8'
     response = HttpResponse(content, content_type=content_type)
     response['Content-Disposition'] = f'attachment; filename={file_name}'
     return response

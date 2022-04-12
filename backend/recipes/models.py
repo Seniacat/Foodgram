@@ -8,13 +8,15 @@ from users.models import User
 
 class Ingredient(models.Model):
     name = models.CharField(
-        'Название',
         max_length=255,
-        db_index=True
+        db_index=True,
+        verbose_name='Название',
+        help_text='Введите название ингредиента'
     )
     measurement_unit = models.CharField(
-        'Единица измерения',
-        max_length=50
+        max_length=50,
+        verbose_name='Единица измерения',
+        help_text='Введите единицу измерения'
     )
 
     class Meta:
@@ -39,9 +41,9 @@ class Recipe(models.Model):
         help_text='Введите автора'
     )
     image = models.ImageField(
-        upload_to='backend_media/recipes/',
+        upload_to='recipes/',
         verbose_name='Изображение',
-        help_text='Загрузите изображение'
+        help_text='Загрузите изображение блюда'
     )
     text = models.TextField(
         verbose_name='Описание',
@@ -67,8 +69,9 @@ class Recipe(models.Model):
         help_text='Введите время приготовления',
         validators=(
             MinValueValidator(
-            settings.MIN_COOK_TIME,
-            f'Минимальное время: {settings.MIN_COOK_TIME} минута'),
+                settings.MIN_COOK_TIME,
+                f'Минимальное время: {settings.MIN_COOK_TIME} минута'
+            ),
         )
     )
     pub_date = models.DateTimeField(

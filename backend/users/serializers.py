@@ -1,4 +1,3 @@
-import sys
 from djoser.serializers import UserSerializer
 from rest_framework import serializers
 
@@ -25,7 +24,7 @@ class CurrentUserSerializer(UserSerializer):
 
     def get_is_subscribed(self, obj):
         request = self.context.get('request')
-        if request.user.is_anonymous:
+        if request is None or request.user.is_anonymous:
             return False
         return Subscription.objects.filter(
                 user=request.user, author=obj
@@ -97,11 +96,10 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         if request.GET.get('recipe_limit'):
             recipe_limit = int(request.GET.get('recipe_limit'))
             queryset = Recipe.objects.filter(
-                    author=obj.author).order_by('-pub_date'
-                    )[:recipe_limit]
+                    author=obj.author)[:recipe_limit]
         else:
             queryset = Recipe.objects.filter(
-                author=obj.author).order_by('-pub_date')
+                author=obj.author)
         serializer = recipes.serializers.ShortRecipeSerializer(
                     queryset, read_only=True, many=True
         )

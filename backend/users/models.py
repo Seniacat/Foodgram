@@ -36,12 +36,12 @@ class Subscription(models.Model):
     )
 
     class Meta:
-        constraints = [
+        constraints = (
             models.UniqueConstraint(
                 fields=('user', 'author'),
                 name='unique_following'
-            )
-        ]
+            ),
+        )
         verbose_name = 'Подписка'
         verbose_name_plural = 'Подписки'
 
