@@ -12,8 +12,8 @@ services:
     expose:
       - 8000
     volumes:
-      - backend_static_value:/app/static/
-      - backend_media_value:/app/media/
+      - static_value:/app/backend_static/
+      - media_value:/app/backend_media/
     depends_on:
       - db
     env_file:
@@ -32,12 +32,13 @@ services:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
       - ../frontend/build:/usr/share/nginx/html/
       - ../docs/:/usr/share/nginx/html/api/docs/
-      - backend_static_value:/var/html/static/
-      - backend_media_value:/var/html/media/
+      - static_value:/var/html/backend_static/
+      - media_value:/var/html/backend_media/
     depends_on:
       - backend
+      - frontend
 
 volumes:
   db-data: 
-  backend_static_value:
-  backend_media_value:
+  static_value:
+  media_value:
