@@ -1,11 +1,10 @@
-import django_filters
-from django_filters import filters
+from django_filters.rest_framework import FilterSet, filters
 
 from users.models import User
 from recipes.models import Recipe
 
 
-class TagFilter(django_filters.FilterSet):
+class TagFilter(FilterSet):
     author = filters.ModelChoiceFilter(queryset=User.objects.all())
     tags = filters.AllValuesMultipleFilter(field_name='tags__slug')
     is_favorited = filters.BooleanFilter(method='get_is_favorited')
@@ -17,11 +16,12 @@ class TagFilter(django_filters.FilterSet):
         fields = ('tags', 'author','is_favorited', 'is_in_shopping_cart')
 
     def get_is_favorited(self, queryset, name, value):
-        if value:
-            return queryset.filter(favorites__user=self.request.user)
+        print(self.request.user, value)
+        if self.request.user.is_authenticated and value is True:
+            return queryset.filter(users_favorites__user=self.request.user)
         return queryset
 
     def get_is_in_shopping_cart(self, queryset, name, value):
-        if value:
+        if self.request.user.is_authenticated and value is True:
             return queryset.filter(shopping_cart__user=self.request.user)
         return queryset
