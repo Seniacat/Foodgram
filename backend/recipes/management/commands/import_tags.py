@@ -4,7 +4,7 @@ import logging
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
-from recipes.models import Ingredient
+from tags.models import Tag
 
 logging.basicConfig(
     level=logging.INFO,
@@ -20,7 +20,7 @@ class Command(BaseCommand):
     help = 'Load data from csv file into the database'
 
     def add_arguments(self, parser):
-        parser.add_argument('filename', default='ingredients.csv', nargs='?',
+        parser.add_argument('filename', default='tags.csv', nargs='?',
                             type=str)
 
     def handle(self, *args, **options):
@@ -32,18 +32,12 @@ class Command(BaseCommand):
             ) as csv_file:
                 data = csv.reader(csv_file)
                 for row in data:
-                    name, measurement_unit = row
-                    Ingredient.objects.get_or_create(
+                    name, color, slug = row
+                    Tag.objects.get_or_create(
                         name=name,
-                        measurement_unit=measurement_unit
+                        color=color,
+                        slug=slug
                     )
         except FileNotFoundError:
-            raise CommandError('Добавьте файл ingredients в директорию data')
+            raise CommandError('Добавьте файл tags в директорию data')
         logging.info('Successfully loaded all data into database')
-
-
-    """fieldnames = ['name', 'measurement_unit']
-        reader = csv.DictReader(csv_file, fieldnames=fieldnames)
-        Ingredient.objects.bulk_create(
-                Ingredient(**data) for data in reader
-        )"""
