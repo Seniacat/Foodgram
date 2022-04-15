@@ -1,10 +1,9 @@
+import users.serializers as users
 from django.db import transaction
 from drf_extra_fields.fields import Base64ImageField
-from rest_framework import serializers, validators
-
-import users.serializers as users
 from recipes.models import (Favorite, Ingredient, IngredientsInRecipe, Recipe,
                             ShoppingCart)
+from rest_framework import serializers, validators
 from tags.models import Tag
 from tags.serializers import TagField
 

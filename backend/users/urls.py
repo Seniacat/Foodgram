@@ -1,5 +1,4 @@
 from django.urls import include, path
-
 from users.views import SubscribeView, SubscriptionViewSet
 
 urlpatterns = [
