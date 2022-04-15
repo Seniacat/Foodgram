@@ -15,8 +15,7 @@ class SubscriptionViewSet(ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        following = user.follower.all()
-        return following
+        return user.follower.all()
 
 
 class SubscribeView(views.APIView):
