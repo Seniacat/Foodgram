@@ -4,9 +4,9 @@ from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from users.models import Subscription, User
-from users.serializers import SubscriptionSerializer, SubscribeSerializer
 from recipes.pagination import CustomPagination
+from users.models import Subscription, User
+from users.serializers import SubscribeSerializer, SubscriptionSerializer
 
 
 class SubscriptionViewSet(ListAPIView):
@@ -29,8 +29,7 @@ class SubscribeView(views.APIView):
         user = self.request.user
         data = {'author': author.id, 'user': user.id}
         serializer = SubscribeSerializer(
-                                        data=data,
-                                        context={'request': request}
+            data=data, context={'request': request}
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -40,9 +39,7 @@ class SubscribeView(views.APIView):
         author = get_object_or_404(User, pk=pk)
         user = self.request.user
         subscription = get_object_or_404(
-                                        Subscription,
-                                        user=user,
-                                        author=author
+            Subscription, user=user, author=author
         )
         subscription.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

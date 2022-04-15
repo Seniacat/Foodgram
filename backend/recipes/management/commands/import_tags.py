@@ -1,9 +1,10 @@
 import csv
-import os
 import logging
+import os
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
+
 from tags.models import Tag
 
 logging.basicConfig(
@@ -13,7 +14,7 @@ logging.basicConfig(
     filemode='w',
 )
 
-DATA_ROOT = os.path.join(settings.BASE_DIR, 'data') 
+DATA_ROOT = os.path.join(settings.BASE_DIR, 'data')
 
 
 class Command(BaseCommand):

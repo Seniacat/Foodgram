@@ -1,9 +1,10 @@
 import csv
-import os
 import logging
+import os
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
+
 from recipes.models import Ingredient
 
 logging.basicConfig(
@@ -13,7 +14,7 @@ logging.basicConfig(
     filemode='w',
 )
 
-DATA_ROOT = os.path.join(settings.BASE_DIR, 'data') 
+DATA_ROOT = os.path.join(settings.BASE_DIR, 'data')
 
 
 class Command(BaseCommand):
@@ -40,10 +41,3 @@ class Command(BaseCommand):
         except FileNotFoundError:
             raise CommandError('Добавьте файл ingredients в директорию data')
         logging.info('Successfully loaded all data into database')
-
-
-    """fieldnames = ['name', 'measurement_unit']
-        reader = csv.DictReader(csv_file, fieldnames=fieldnames)
-        Ingredient.objects.bulk_create(
-                Ingredient(**data) for data in reader
-        )"""

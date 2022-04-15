@@ -3,21 +3,17 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.validators import ValidationError
 
 from recipes.filters import TagFilter
-from recipes.models import (
-                    Favorite, Ingredient, IngredientsInRecipe,
-                    Recipe, ShoppingCart
-)
+from recipes.models import (Favorite, Ingredient, IngredientsInRecipe, Recipe,
+                            ShoppingCart)
 from recipes.pagination import CustomPagination
 from recipes.permissions import IsOwnerOrReadOnly
-from recipes.serializers import (
-                        IngredientSerializer, AddRecipeSerializer,
-                        RecipeSerializer, ShortRecipeSerializer
-)
+from recipes.serializers import (AddRecipeSerializer, IngredientSerializer,
+                                 RecipeSerializer, ShortRecipeSerializer)
 from recipes.utils import convert_txt
 
 
@@ -48,9 +44,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer.save(author=user)
 
     @action(
-            detail=True,
-            methods=('post', 'delete'),
-            permission_classes=(IsAuthenticated,)
+        detail=True,
+        methods=('post', 'delete'),
+        permission_classes=(IsAuthenticated,)
     )
     def favorite(self, request, pk=None):
         if request.method == 'POST':
@@ -59,8 +55,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return self.delete_recipe(Favorite, request, pk)
 
     @action(
-            detail=False,
-            permission_classes=(IsAuthenticated,)
+        detail=False,
+        permission_classes=(IsAuthenticated,)
     )
     def download_shopping_cart(self, request):
         ingredients = IngredientsInRecipe.objects.filter(
@@ -73,9 +69,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return convert_txt(ingredients)
 
     @action(
-            detail=True,
-            methods=('post', 'delete'),
-            permission_classes=(IsAuthenticated,)
+        detail=True,
+        methods=('post', 'delete'),
+        permission_classes=(IsAuthenticated,)
     )
     def shopping_cart(self, request, pk):
         if request.method == 'POST':

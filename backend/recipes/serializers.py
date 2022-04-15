@@ -1,10 +1,10 @@
 from django.db import transaction
-from rest_framework import serializers, validators
 from drf_extra_fields.fields import Base64ImageField
+from rest_framework import serializers, validators
 
 import users.serializers as users
-from recipes.models import (Favorite, Ingredient,
-                            IngredientsInRecipe, Recipe, ShoppingCart)
+from recipes.models import (Favorite, Ingredient, IngredientsInRecipe, Recipe,
+                            ShoppingCart)
 from tags.models import Tag
 from tags.serializers import TagField
 
@@ -20,7 +20,7 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField(source='ingredient.id')
     name = serializers.ReadOnlyField(source='ingredient.name')
     measurement_unit = serializers.ReadOnlyField(
-                        source='ingredient.measurement_unit'
+        source='ingredient.measurement_unit'
     )
 
     class Meta:
@@ -28,11 +28,11 @@ class IngredientInRecipeSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'measurement_unit', 'amount')
 
     validators = (
-            validators.UniqueTogetherValidator(
-                queryset=IngredientsInRecipe.objects.all(),
-                fields=('ingredient', 'recipe')
-            ),
-        )
+        validators.UniqueTogetherValidator(
+            queryset=IngredientsInRecipe.objects.all(),
+            fields=('ingredient', 'recipe')
+        ),
+    )
 
     def __str__(self):
         return f'{self.ingredient} in {self.recipe}'
@@ -67,16 +67,16 @@ class RecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = (
-                'id',
-                'tags',
-                'name',
-                'author',
-                'ingredients',
-                'image',
-                'text',
-                'cooking_time',
-                'is_favorited',
-                'is_in_shopping_cart'
+            'id',
+            'tags',
+            'name',
+            'author',
+            'ingredients',
+            'image',
+            'text',
+            'cooking_time',
+            'is_favorited',
+            'is_in_shopping_cart'
         )
 
     def in_list(self, obj, model):
@@ -103,12 +103,12 @@ class AddRecipeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = (
-                'tags',
-                'name',
-                'ingredients',
-                'image',
-                'text',
-                'cooking_time'
+            'tags',
+            'name',
+            'ingredients',
+            'image',
+            'text',
+            'cooking_time'
         )
 
     def to_representation(self, instance):
@@ -141,8 +141,8 @@ class AddRecipeSerializer(serializers.ModelSerializer):
         instance.text = validated_data.get('text', instance.text)
         instance.image = validated_data.get('image', instance.image)
         instance.cooking_time = validated_data.get(
-                                                'cooking_time',
-                                                instance.cooking_time)
+            'cooking_time', instance.cooking_time
+        )
         for ingredient in ingredients:
             amount = ingredient['amount']
             ingredient = ingredient['id']
