@@ -45,7 +45,13 @@ jobs:
           context: backend
           file: backend/Dockerfile
           push: true
-          tags: senia0709/foodgram:latest
+          tags: senia0709/foodgram_backend:latest
+      - name: Push frontend
+          uses: docker/build-push-action@v2 
+          with:
+            context: frontend/
+            push: true
+            tags: senia0709/foodgram_frontend:latest
   deploy:
     runs-on: ubuntu-latest
     needs: build_and_push_to_docker_hub
@@ -59,9 +65,11 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         passphrase: ${{ secrets.PASSPHRASE }} 
         script: |
-          sudo docker pull senia0709/foodgram:latest
+          sudo docker pull senia0709/foodgram_backend:latest
+          sudo docker pull senia0709/foodgram_frontend:latest
           sudo docker-compose stop
           sudo docker-compose rm backend
+          rm .env
           touch .env
           echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
           echo DB_NAME=${{ secrets.DB_NAME }} >> .env
@@ -69,7 +77,11 @@ jobs:
           echo POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} >> .env
           echo DB_HOST=${{ secrets.DB_HOST }} >> .env
           echo DB_PORT=${{ secrets.DB_PORT }} >> .env
-          sudo docker-compose up -d 
+          sudo docker-compose up -d
+          sudo docker-compose exec backend python manage.py migrate
+          sudo docker-compose exec backend python manage.py collectstatic --no-input
+          sudo docker-compose exec backend python manage.py import_ings ingredients.csv
+          sudo docker-compose exec backend python manage.py import_tags tags.csv
   
   send_message:
     runs-on: ubuntu-latest
