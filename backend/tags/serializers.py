@@ -14,5 +14,5 @@ class TagField(serializers.SlugRelatedField):
     def to_representation(self, value):
         request = self.context.get('request')
         context = {'request': request}
-        serializer = TagSerializer(value)
+        serializer = TagSerializer(value, context=context)
         return serializer.data
