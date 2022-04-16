@@ -37,9 +37,11 @@ class SubscribeSerializer(serializers.ModelSerializer):
         fields = ('user', 'author')
 
     def to_representation(self, instance):
+        request = self.context.get('request')
+        context = {'request': request}
         serializer = SubscriptionSerializer(
             instance,
-            context={'request': self.context.get('request')}
+            context=context
         )
         return serializer.data
 
