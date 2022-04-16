@@ -136,12 +136,13 @@ class AddRecipeSerializer(serializers.ModelSerializer):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
         IngredientsInRecipe.objects.filter(recipe=instance).delete()
-        instance.name = validated_data.get('name', instance.name)
-        instance.text = validated_data.get('text', instance.text)
-        instance.image = validated_data.get('image', instance.image)
-        instance.cooking_time = validated_data.get(
-            'cooking_time', instance.cooking_time
-        )
+        #instance.name = validated_data.get('name', instance.name)
+        #instance.text = validated_data.get('text', instance.text)
+        #instance.image = validated_data.get('image', instance.image)
+        #instance.cooking_time = validated_data.get(
+        #    'cooking_time', instance.cooking_time
+        #)
+        super().update(instance, validated_data)
         for ingredient in ingredients:
             amount = ingredient['amount']
             ingredient = ingredient['id']
@@ -152,7 +153,7 @@ class AddRecipeSerializer(serializers.ModelSerializer):
             )
         instance.tags.clear()
         instance.tags.set(tags)
-        return self.instance
+        return instance
 
     def validate_ingredients(self, data):
         if not data:
