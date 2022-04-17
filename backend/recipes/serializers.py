@@ -114,13 +114,7 @@ class AddRecipeSerializer(serializers.ModelSerializer):
         serializer = RecipeSerializer(instance)
         return serializer.data
 
-    @transaction.atomic
-    def create(self, validated_data):
-        ingredients = validated_data.pop('ingredients')
-        tags = validated_data.pop('tags')
-        recipe = Recipe.objects.create(**validated_data)
-        recipe.tags.set(tags)
-        recipe.save()
+    def create_ingredients(self, ingredients, recipe):
         for ingredient in ingredients:
             amount = ingredient['amount']
             ingredient = ingredient['id']
@@ -129,6 +123,15 @@ class AddRecipeSerializer(serializers.ModelSerializer):
                 ingredient=ingredient,
                 amount=amount
             )
+
+    @transaction.atomic
+    def create(self, validated_data):
+        ingredients = validated_data.pop('ingredients')
+        tags = validated_data.pop('tags')
+        recipe = Recipe.objects.create(**validated_data)
+        recipe.tags.set(tags)
+        recipe.save()
+        self.create_ingredients(ingredients, recipe)
         return recipe
 
     @transaction.atomic
@@ -136,18 +139,10 @@ class AddRecipeSerializer(serializers.ModelSerializer):
         ingredients = validated_data.pop('ingredients')
         tags = validated_data.pop('tags')
         instance.ingredients.clear()
-        super().update(instance, validated_data)
-        for ingredient in ingredients:
-            amount = ingredient['amount']
-            ingredient = ingredient['id']
-            IngredientsInRecipe.objects.create(
-                recipe=instance,
-                ingredient=ingredient,
-                amount=amount
-            )
+        self.create_ingredients(ingredients, instance)
         instance.tags.clear()
         instance.tags.set(tags)
-        return instance
+        return super().update(instance, validated_data)
 
     def validate_ingredients(self, data):
         if not data:
