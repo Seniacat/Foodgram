@@ -158,9 +158,9 @@ class AddRecipeSerializer(serializers.ModelSerializer):
                     f'Введите количество для {name}'
                 )
             if not isinstance(ingredient['amount'], int):
-               raise serializers.ValidationError(
+                raise serializers.ValidationError(
                     'Количество ингредиентов должно быть целым числом'
-                ) 
+                )
             if name not in unique_ings:
                 unique_ings.append(name)
             else:
