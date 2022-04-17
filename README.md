@@ -1,5 +1,5 @@
 # Foodgram - продуктовый помощник
-![foodgram_workflow](https://github.com/Seniacat/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)
+![foodgram_workflow](https://github.com/Seniacat/Foodgram/actions/workflows/foodgram_workflow.yml/badge.svg)
 
 ## Стек технологий
 
@@ -21,8 +21,8 @@
 Клонируйте репозиторий и перейдите в него в командной строке.
 Создайте и активируйте виртуальное окружение:
 ```
-git clone https://github.com/Seniacat/foodgram-project-react.git
-cd foodgram-project-react
+git clone https://github.com/Seniacat/Foodgram.git
+cd Foodgram
 ```
 Должен быть свободен порт 8000. PostgreSQL поднимается на 5432 порту, он тоже должен быть свободен.
 Cоздать и открыть файл .env с переменными окружения:
