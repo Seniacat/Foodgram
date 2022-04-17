@@ -65,9 +65,9 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         passphrase: ${{ secrets.PASSPHRASE }} 
         script: |
+          cd foodgram-project-react/infra
           sudo docker pull senia0709/foodgram_backend:latest
           sudo docker pull senia0709/foodgram_frontend:latest
-          cd foodgram-project-react/infra
           sudo docker-compose stop
           sudo docker-compose rm backend
           rm .env
