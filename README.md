@@ -1,5 +1,5 @@
 # Foodgram - продуктовый помощник
-![foodgram_workflow](https://github.com/Seniacat/Foodgram/workflows/foodgram_workflow.yml/badge.svg)
+![foodgram_workflow](https://github.com/Seniacat/Foodgram/.github/workflows/foodgram_workflow.yml/badge.svg)
 
 ## Стек технологий
 

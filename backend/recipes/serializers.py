@@ -118,7 +118,7 @@ class AddRecipeSerializer(serializers.ModelSerializer):
         for ingredient in ingredients:
             amount = ingredient['amount']
             ingredient = ingredient['id']
-            IngredientsInRecipe.objects.create(
+            ingredients, created = IngredientsInRecipe.objects.get_or_create(
                 recipe=recipe,
                 ingredient=ingredient,
                 amount=amount
@@ -144,15 +144,16 @@ class AddRecipeSerializer(serializers.ModelSerializer):
         instance.tags.set(tags)
         return super().update(instance, validated_data)
 
-    def validate_ingredients(self, data):
-        if not data:
+    def validate(self, data):
+        ings = data['ingredients']
+        if not ings:
             raise serializers.ValidationError(
                 'Поле с ингредиентами не может быть пустым'
             )
         unique_ings = []
-        for ingredient in data:
+        for ingredient in ings:
             name = ingredient['id']
-            if ingredient['amount'] == 0:
+            if int(ingredient['amount']) == 0:
                 raise serializers.ValidationError(
                     f'Введите количество для {name}'
                 )
