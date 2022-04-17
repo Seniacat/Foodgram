@@ -6,6 +6,7 @@ from recipes.models import (Favorite, Ingredient, IngredientsInRecipe, Recipe,
 class IngredientsInRecipeInline(admin.TabularInline):
     model = Recipe.ingredients.through
     extra = 1
+    search_fields = ('recipe__name', 'ingredient__name')
 
 
 class IngredientAdmin(admin.ModelAdmin):
@@ -14,13 +15,15 @@ class IngredientAdmin(admin.ModelAdmin):
         'name',
         'measurement_unit',
     )
-    list_filter = ('name',)
+    list_filter = ('name', 'measurement_unit')
+    search_fields = ('name', 'measurement_unit')
 
 
 class RecipeAdmin(admin.ModelAdmin):
     inlines = (IngredientsInRecipeInline,)
-    list_filter = ('name', 'tags', 'ingredients')
+    list_filter = ('tags',)
     search_fields = (
+        'name',
         'author__username',
         'author__email'
     )
@@ -38,7 +41,8 @@ class FavoriteAdmin(admin.ModelAdmin):
     )
     search_fields = (
         'user__username',
-        'user__email'
+        'user__email',
+        'recipe__name'
     )
 
 
@@ -46,6 +50,11 @@ class ShoppingCartAdmin(admin.ModelAdmin):
     list_display = (
         'pk',
         'user',
+        'recipe'
+    )
+    search_fields = (
+        'user__username',
+        'user__email',
         'recipe'
     )
 

@@ -1,3 +1,4 @@
+from colorfield.fields import ColorField
 from django.db import models
 
 
@@ -8,7 +9,7 @@ class Tag(models.Model):
         verbose_name='Название',
         help_text='Введите название тега'
     )
-    color = models.CharField(
+    color = ColorField(
         max_length=8,
         unique=True,
         verbose_name='Цвет',

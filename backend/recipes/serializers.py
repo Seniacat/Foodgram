@@ -155,7 +155,7 @@ class AddRecipeSerializer(serializers.ModelSerializer):
             name = ingredient['id']
             if int(ingredient['amount']) <= 0:
                 raise serializers.ValidationError(
-                    f'Введите количество для {name}'
+                    f'Не корректное количество для {name}'
                 )
             if not isinstance(ingredient['amount'], int):
                 raise serializers.ValidationError(
