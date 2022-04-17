@@ -1,5 +1,6 @@
 # Foodgram - продуктовый помощник
-[![foodgram_workflow](https://github.com/Seniacat/Foodgram/actions/workflows/foodgram_workflow.yml/badge.svg)](https://github.com/Seniacat/Foodgram/actions/workflows/foodgram_workflow.yml)
+![foodgram workflow]([![foodgram_workflow](https://github.com/Seniacat/Foodgram/actions/workflows/foodgram_workflow.yml/badge.svg)](https://github.com/Seniacat/Foodgram/actions/workflows/foodgram_workflow.yml))  
+
 ## Стек технологий
 
 ## Описание проекта
