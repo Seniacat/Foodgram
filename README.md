@@ -59,14 +59,16 @@ echo SECRET_KEY=************ >> .env
 ```
 docker-compose up -d
 ```
-Запустить миграции, создать суперюзера, собрать статику и заполнить БД:
+Запустить миграции, создать суперюзера, собрать статику и заполнить а БД таблицы с ингредиентами и тегами:
 ```
-docker-compose exec web python manage.py migrate
+docker-compose exec backend python manage.py migrate
 
-docker-compose exec web python manage.py createsuperuser
+docker-compose exec backend python manage.py createsuperuser
 
-docker-compose exec web python manage.py collectstatic --no-input 
+docker-compose exec backend python manage.py collectstatic --no-input 
 
-docker-compose exec web python manage.py loaddata fixtures.json
+docker-compose exec backend python manage.py import_ings ingredients.csv
+
+docker-compose exec backend python manage.py import_tags tags.csv
 ```
 
