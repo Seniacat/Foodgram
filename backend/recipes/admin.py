@@ -6,6 +6,15 @@ from recipes.models import (Favorite, Ingredient, IngredientsInRecipe, Recipe,
 class IngredientsInRecipeInline(admin.TabularInline):
     model = Recipe.ingredients.through
     extra = 1
+
+
+class IngredientsInRecipeAdmin(admin.ModelAdmin):
+    list_display = (
+        'pk',
+        'ingredient',
+        'recipe',
+        'amount'
+    )
     search_fields = ('recipe__name', 'ingredient__name')
 
 
@@ -15,8 +24,9 @@ class IngredientAdmin(admin.ModelAdmin):
         'name',
         'measurement_unit',
     )
-    list_filter = ('name', 'measurement_unit')
-    search_fields = ('name', 'measurement_unit')
+    search_fields = ('measurement_unit',)
+    list_filter = ('measurement_unit',)
+    
 
 
 class RecipeAdmin(admin.ModelAdmin):
@@ -59,8 +69,11 @@ class ShoppingCartAdmin(admin.ModelAdmin):
     )
 
 
-admin.site.register(Ingredient)
-admin.site.register(IngredientsInRecipe)
+admin.site.register(Ingredient, IngredientAdmin)
 admin.site.register(Recipe, RecipeAdmin)
 admin.site.register(Favorite, FavoriteAdmin)
 admin.site.register(ShoppingCart, ShoppingCartAdmin)
+admin.site.register(
+    IngredientsInRecipe,
+    IngredientsInRecipeAdmin
+)
