@@ -26,7 +26,6 @@ class IngredientAdmin(admin.ModelAdmin):
     )
     search_fields = ('measurement_unit',)
     list_filter = ('measurement_unit',)
-    
 
 
 class RecipeAdmin(admin.ModelAdmin):
