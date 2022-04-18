@@ -1,3 +1,4 @@
+from distutils.debug import DEBUG
 import os
 from pathlib import Path
 
@@ -19,7 +20,8 @@ SECRET_KEY = os.getenv(
 )
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(os.environ.get('DEBUG', default=True))
+# DEBUG = bool(os.environ.get('DEBUG', default=True))
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 

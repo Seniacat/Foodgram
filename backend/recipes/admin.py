@@ -30,7 +30,11 @@ class IngredientAdmin(admin.ModelAdmin):
 
 class RecipeAdmin(admin.ModelAdmin):
     inlines = (IngredientsInRecipeInline,)
-    list_filter = ('tags',)
+    list_display = (
+        'pk',
+        'name',
+        'author'
+    )
     search_fields = (
         'name',
         'author__username',
@@ -64,7 +68,7 @@ class ShoppingCartAdmin(admin.ModelAdmin):
     search_fields = (
         'user__username',
         'user__email',
-        'recipe'
+        'recipe__name'
     )
 
 
